@@ -45,7 +45,7 @@ namespace SharpEngine
             }
             glEnableVertexAttribArray(0);
             
-            string vertexShaderSource = @";
+            string vertexShaderSource = @"
 #version 330 core
  in vec3 pos;
 
