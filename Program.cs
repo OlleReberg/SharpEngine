@@ -104,19 +104,19 @@ namespace SharpEngine
         }
         private static void ClearScreen()
         {
-            glClearColor(.2f, .4f, .2f, alpha:1 );
+            glClearColor(.1f, .1f, .2f, alpha:1 );
             glClear(GL_COLOR_BUFFER_BIT);
         }
         private static void CreateShaderProgram()
         {
             //create vertex shader
             var vertexShader = glCreateShader(GL_VERTEX_SHADER);
-            glShaderSource(vertexShader, File.ReadAllText("shaders/screen-coordinates.vert"));
+            glShaderSource(vertexShader, File.ReadAllText("shaders/position-color.vert"));
             glCompileShader(vertexShader);
 
             //create fragment shader
             var fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-            glShaderSource(fragmentShader, File.ReadAllText("shaders/blue.frag"));
+            glShaderSource(fragmentShader, File.ReadAllText("shaders/vertex-color.frag"));
             glCompileShader(fragmentShader);
 
             //create shader program - rendering pipeline
@@ -133,14 +133,16 @@ namespace SharpEngine
             glBindVertexArray(vertexArray);
             glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
             UpdateTriangleBuffer();
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vector), NULL);
+            glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vertex), NULL);
+            glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(Vertex), (void*)sizeof(Vector));
             glEnableVertexAttribArray(0);
+            glEnableVertexAttribArray(1);
         }
         static unsafe void UpdateTriangleBuffer()
         {
             fixed (Vertex* vertex = &vertices[0])
             {
-                glBufferData(GL_ARRAY_BUFFER, sizeof(Vector) * vertices.Length, vertex, GL_DYNAMIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.Length, vertex, GL_DYNAMIC_DRAW);
             }
         }
         private static Window CreateWindow()
