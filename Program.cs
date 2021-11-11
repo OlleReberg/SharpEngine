@@ -8,72 +8,19 @@ using static OpenGL.Gl;
 
 namespace SharpEngine
 {
-    public class Triangle
-    {
-        private Vertex[] vertices;
-        public Triangle(Vertex[] vertices)
-        {
-            this.vertices = vertices;
-            CurrentScale = 1f;
-        }
-
-        public float CurrentScale { get; private set;}
-        
-        public Vector GetMinBounds()
-        {
-            var min = vertices[0].position;
-            for (var i = 1; i < vertices.Length; i++) {
-                min = Vector.Min(min, vertices[i].position);
-            }
-            return min;
-        }
-
-        public Vector GetMaxBounds()
-        {
-            var max = vertices[0].position;
-            for (var i = 1; i < vertices.Length; i++) {
-                max = Vector.Max(max, vertices[i].position);
-            }
-            return max;
-        }
-
-        public void Scale(float multiplier)
-        {
-            CurrentScale *= multiplier;
-
-            // First moving triangle to center, to fix scaling, then move it back
-            var center = (GetMinBounds() + GetMaxBounds()) / 2;
-            Move(center*-1);
-            for (var i = 0; i < vertices.Length; i++) {
-                vertices[i].position *= multiplier;
-            }
-            Move(center);
-        }
-        public void Move(Vector direction)
-        {
-            for (var i = 0; i < vertices.Length; i ++)
-            {
-                vertices[i].position += direction;
-            }
-        }
-
-        public unsafe void Render() 
-        {
-            fixed (Vertex* vertex = &vertices[0]) {
-                glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.Length, vertex, GL_DYNAMIC_DRAW);
-            }
-            glDrawArrays(GL_TRIANGLES, 0, vertices.Length);
-        }
-    }
     class Program
     {
         static Triangle triangle = new Triangle
         (
             new Vertex[] 
             {
-                new Vertex(new Vector(.3f, .3f), Color.Red),
-                new Vertex(new Vector(.7f, .4f), Color.Green),
-                new Vertex(new Vector(.6f, .2f), Color.Blue)
+                new Vertex(new Vector(.2f, .2f), Color.Red),
+                new Vertex(new Vector(.8f, .6f), Color.Green),
+                new Vertex(new Vector(.8f, .1f), Color.Blue),
+                
+                new Vertex(new Vector(.2f, .0f), Color.Red),
+                new Vertex(new Vector(.5f, .0f), Color.Green),
+                new Vertex(new Vector(.5f, .1f), Color.Blue)
             }
         );
         static void Main(string[] args)
@@ -85,13 +32,14 @@ namespace SharpEngine
             
             var direction = new Vector(0.0002f, 0.0002f);
             var multiplier = 0.9999f;
-            
+            //Engine rendering loop
             while (!Glfw.WindowShouldClose(window))
             {
                 Glfw.PollEvents(); //reacts to window changes (position etc.)
                 ClearScreen();
                 Render(window);
                 triangle.Scale(multiplier);
+                
                 // 2. Keep track of the Scale, so we can reverse it
                 if (triangle.CurrentScale <= 0.5f) {
                     multiplier = 1.001f;
