@@ -23,6 +23,32 @@ namespace SharpEngine
             this.y = y;
             this.z = 0;
         }
+
+        public static Vector operator *(Vector v, float f)
+        {
+            return new Vector(v.x * f, v.y * f, v.z * f);
+        }
+
+        public static Vector operator +(Vector lhs, Vector rhs)
+        {
+            return new Vector(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
+        }
+        public static Vector operator -(Vector v, float f)
+        {
+            return new Vector(v.x - f, v.y - f, v.z - f);
+        }
+        public static Vector operator /(Vector v, float f)
+        {
+            return new Vector(v.x / f, v.y / f, v.z / f);
+        }
+        // +
+        // -
+        // /
+         // Vectors = Direction and Magnitude
+         // Position Vectors = Origin + Vector = Vector
+         // Vector Addition and Subtraction: (3   2)  (6   5)   = (3+6     2+5) = (9    7)
+         // Vector Magnitude: sqrt(x^2 + y^2 + z^2)
+         // Vector Scalar Multiplication: (3    2) * 2 = (3 * 2     2 * 2) = (6    4)
     }
     class Program
     {
@@ -31,9 +57,9 @@ namespace SharpEngine
             new (-.1f, -.1f),
             new (.1f, -.1f),
             new (0f, .1f),
-            new (.4f, .4f),
-            new (.6f, .4f),
-            new (.5f, .6f),
+           // new (.4f, .4f),
+           // new (.6f, .4f),
+           // new (.5f, .6f),
         };
         
         
@@ -48,6 +74,7 @@ namespace SharpEngine
             CreateShaderProgram();
 
             //engine rendering loop
+            var direction = new Vector(0.0002f, 0.0002f);
             while (!Glfw.WindowShouldClose(window))
             {
                 Glfw.PollEvents(); //reacts to window changes (position etc.)
@@ -55,8 +82,42 @@ namespace SharpEngine
                 Render(window);
                 for (var i = 0; i < vertices.Length; i ++)
                 {
-                    vertices[i].x += 0.001f; // 99.99% // 0.01%
-                    //vertices[i] /= 1.001f; // - 0.000099990001%
+                    vertices[i] += direction;
+                }
+
+                for (var i = 0; i < vertices.Length; i++)
+                {
+                    if (vertices[i].x >= 1)
+                    {
+                        direction.x *= -1;
+                    }
+                }
+                for (var i = 0; i < vertices.Length; i++)
+                {
+                    if (vertices[i].y >= 1)
+                    {
+                        direction.y *= -1;
+                    }
+                }
+                for (var i = 0; i < vertices.Length; i ++)
+                {
+                    vertices[i] += direction;
+                }
+                for (var i = 0; i < vertices.Length; i++)
+                {
+                    if (vertices[i].x <= -1)
+                    {
+                        direction.x *= -1;
+                    }
+                }
+
+                for (var i = 0; i < vertices.Length; i++)
+                {
+                    if (vertices[i].y <= -1)
+                    {
+                        direction.y *= -1;
+                        break;
+                    }
                 }
                 UpdateTriangleBuffer();
             }
