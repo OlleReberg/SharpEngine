@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Numerics;
 using GLFW;
 using static OpenGL.Gl;
 
@@ -33,33 +34,40 @@ namespace SharpEngine
         {
             return new Vector(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
         }
-        public static Vector operator -(Vector v, float f)
+        public static Vector operator -(Vector lhs, Vector rhs)
         {
-            return new Vector(v.x - f, v.y - f, v.z - f);
+            return new Vector(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
         }
         public static Vector operator /(Vector v, float f)
         {
             return new Vector(v.x / f, v.y / f, v.z / f);
         }
-        // +
-        // -
-        // /
+        
          // Vectors = Direction and Magnitude
          // Position Vectors = Origin + Vector = Vector
          // Vector Addition and Subtraction: (3   2)  (6   5)   = (3+6     2+5) = (9    7)
          // Vector Magnitude: sqrt(x^2 + y^2 + z^2)
          // Vector Scalar Multiplication: (3    2) * 2 = (3 * 2     2 * 2) = (6    4)
+         public static Vector Max(Vector a, Vector b)
+         {
+             return new Vector(MathF.Max(a.x, b.x), MathF.Max(a.y, b.y), MathF.Max(a.z, b.z));
+         }
+         public static Vector Min(Vector a, Vector b) 
+         {
+             return new Vector(MathF.Min(a.x, b.x), MathF.Min(a.y, b.y), MathF.Min(a.z, b.z));
+         }
     }
     class Program
     {
+        
         static Vector[] vertices = new Vector[]
         {
-            new (-.1f, -.1f),
-            new (.1f, -.1f),
-            new (0f, .1f),
-           // new (.4f, .4f),
-           // new (.6f, .4f),
-           // new (.5f, .6f),
+           // new (-.1f, -.1f),
+           // new (.1f, -.1f),
+           // new (0f, .1f),
+            new (.4f, .4f),
+            new (.6f, .4f),
+            new (.5f, .6f),
         };
         
         
@@ -75,6 +83,8 @@ namespace SharpEngine
 
             //engine rendering loop
             var direction = new Vector(0.0002f, 0.0002f);
+            var multiplier = 0.9999f;
+            var scale = 1f;
             while (!Glfw.WindowShouldClose(window))
             {
                 Glfw.PollEvents(); //reacts to window changes (position etc.)
@@ -84,36 +94,62 @@ namespace SharpEngine
                 {
                     vertices[i] += direction;
                 }
+                //Move it to center, scale it, move it back. Quick in and out job no one will even notice!
+                var min = vertices[0];
+                for (var i = 1; i < vertices.Length; i++) {
+                    min = Vector.Min(min, vertices[i]);
+                }
+                var max = vertices[0];
+                for (var i = 1; i < vertices.Length; i++) {
+                    max = Vector.Max(max, vertices[i]);
+                }
+                // 1.1.1.2 Average out the Minimum and Maximum to get the Center
+                var center = (min + max) / 2;
+                // 1.1.2 Move the Triangle the Center
+                for (var i = 0; i < vertices.Length; i++) {
+                    vertices[i] -= center;
+                }
+                // 1.2 Scale the Triangle
+                for (var i = 0; i < vertices.Length; i++) {
+                    vertices[i] *= multiplier;
+                }
+                // 1.3 Move the Triangle Back to where it was before
+                for (var i = 0; i < vertices.Length; i++) {
+                    vertices[i] += center;
+                }
+                
+                // 2. Keep track of the Scale, so we can reverse it
+                scale *= multiplier;
+                if (scale <= 0.5f) {
+                    multiplier = 1.001f;
+                }
+                if (scale >= 1f) {
+                    multiplier = 0.999f;
+                }
+
+                scale *= multiplier;
+
+                if (scale <= 0.5f)
+                {
+                    multiplier = 1.0001f;
+                }
+                if (scale >= 1f)
+                {
+                    multiplier = .9999f;
+                }
+
 
                 for (var i = 0; i < vertices.Length; i++)
                 {
-                    if (vertices[i].x >= 1)
+                    if (vertices[i].x >= 1 && direction.x > 0  || vertices[i].x <= -1 && direction.x < 0 )
                     {
                         direction.x *= -1;
+                        break;
                     }
                 }
                 for (var i = 0; i < vertices.Length; i++)
                 {
-                    if (vertices[i].y >= 1)
-                    {
-                        direction.y *= -1;
-                    }
-                }
-                for (var i = 0; i < vertices.Length; i ++)
-                {
-                    vertices[i] += direction;
-                }
-                for (var i = 0; i < vertices.Length; i++)
-                {
-                    if (vertices[i].x <= -1)
-                    {
-                        direction.x *= -1;
-                    }
-                }
-
-                for (var i = 0; i < vertices.Length; i++)
-                {
-                    if (vertices[i].y <= -1)
+                    if (vertices[i].y >= 1 && direction.y > 0 || vertices[i].y <= -1 && direction.y < 0 )
                     {
                         direction.y *= -1;
                         break;
