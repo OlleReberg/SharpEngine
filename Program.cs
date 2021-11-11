@@ -6,23 +6,14 @@ using static OpenGL.Gl;
 
 namespace SharpEngine
 {
-    public struct Vertex
-    {
-        public Vector position;
-
-        public Vertex(Vector position)
-        {
-            this.position = position;
-        }
-    }
     class Program
     {
         
         static Vertex[] vertices = new Vertex[]
         {
-            new Vertex(new Vector(.4f, .4f)),
-            new Vertex(new Vector(.6f, .4f)),
-            new Vertex(new Vector(.5f, .6f)),
+            new Vertex(new Vector(.4f, .4f), Color.Red),
+            new Vertex(new Vector(.6f, .4f), Color.Green),
+            new Vertex(new Vector(.5f, .6f), Color.Blue)
         };
         
         static void Main(string[] args)
