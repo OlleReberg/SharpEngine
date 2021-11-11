@@ -1,21 +1,81 @@
 ﻿using System.IO;
 using System.Net;
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using GLFW;
 using static OpenGL.Gl;
 
 namespace SharpEngine
 {
+    public class Triangle
+    {
+        private Vertex[] vertices;
+        public Triangle(Vertex[] vertices)
+        {
+            this.vertices = vertices;
+            CurrentScale = 1f;
+        }
+
+        public float CurrentScale { get; private set;}
+        
+        public Vector GetMinBounds()
+        {
+            var min = vertices[0].position;
+            for (var i = 1; i < vertices.Length; i++) {
+                min = Vector.Min(min, vertices[i].position);
+            }
+            return min;
+        }
+
+        public Vector GetMaxBounds()
+        {
+            var max = vertices[0].position;
+            for (var i = 1; i < vertices.Length; i++) {
+                max = Vector.Max(max, vertices[i].position);
+            }
+            return max;
+        }
+
+        public void Scale(float multiplier)
+        {
+            CurrentScale *= multiplier;
+
+            // First moving triangle to center, to fix scaling, then move it back
+            var center = (GetMinBounds() + GetMaxBounds()) / 2;
+            Move(center*-1);
+            for (var i = 0; i < vertices.Length; i++) {
+                vertices[i].position *= multiplier;
+            }
+            Move(center);
+        }
+        public void Move(Vector direction)
+        {
+            for (var i = 0; i < vertices.Length; i ++)
+            {
+                vertices[i].position += direction;
+            }
+        }
+
+        public unsafe void Render() 
+        {
+            fixed (Vertex* vertex = &vertices[0]) {
+                glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.Length, vertex, GL_DYNAMIC_DRAW);
+            }
+            glDrawArrays(GL_TRIANGLES, 0, vertices.Length);
+        }
+    }
     class Program
     {
-        
-        static Vertex[] vertices = new Vertex[]
-        {
-            new Vertex(new Vector(.4f, .4f), Color.Red),
-            new Vertex(new Vector(.6f, .4f), Color.Green),
-            new Vertex(new Vector(.5f, .6f), Color.Blue)
-        };
-        
+        static Triangle triangle = new Triangle
+        (
+            new Vertex[] 
+            {
+                new Vertex(new Vector(.3f, .3f), Color.Red),
+                new Vertex(new Vector(.7f, .4f), Color.Green),
+                new Vertex(new Vector(.6f, .2f), Color.Blue)
+            }
+        );
         static void Main(string[] args)
         {
             //initialize and configure
@@ -25,80 +85,40 @@ namespace SharpEngine
             
             var direction = new Vector(0.0002f, 0.0002f);
             var multiplier = 0.9999f;
-            var scale = 1f;
+            
             while (!Glfw.WindowShouldClose(window))
             {
                 Glfw.PollEvents(); //reacts to window changes (position etc.)
                 ClearScreen();
                 Render(window);
-                for (var i = 0; i < vertices.Length; i ++)
-                {
-                    vertices[i].position += direction;
-                }
-                //Move it to center, scale it, move it back. Quick in and out job no one will even notice!
-                var min = vertices[0].position;
-                for (var i = 1; i < vertices.Length; i++) {
-                    min = Vector.Min(min, vertices[i].position);
-                }
-                var max = vertices[0].position;
-                for (var i = 1; i < vertices.Length; i++) {
-                    max = Vector.Max(max, vertices[i].position);
-                }
-                // 1.1.1.2 Average out the Minimum and Maximum to get the Center
-                var center = (min + max) / 2;
-                // 1.1.2 Move the Triangle the Center
-                for (var i = 0; i < vertices.Length; i++) {
-                    vertices[i].position -= center;
-                }
-                // 1.2 Scale the Triangle
-                for (var i = 0; i < vertices.Length; i++) {
-                    vertices[i].position *= multiplier;
-                }
-                // 1.3 Move the Triangle Back to where it was before
-                for (var i = 0; i < vertices.Length; i++) {
-                    vertices[i].position += center;
-                }
+                triangle.Scale(multiplier);
                 // 2. Keep track of the Scale, so we can reverse it
-                scale *= multiplier;
-                if (scale <= 0.5f) {
+                if (triangle.CurrentScale <= 0.5f) {
                     multiplier = 1.001f;
                 }
-                if (scale >= 1f) {
+                if (triangle.CurrentScale >= 1f) {
                     multiplier = 0.999f;
                 }
-                
-                scale *= multiplier;
-                
-                if (scale <= 0.5f)
+                //3. Move Triangle by its direction
+               triangle.Move(direction);
+               
+                // 4. Check the X-Bounds of the Screen
+                if(triangle.GetMaxBounds().x >= 1 && direction.x > 0  || triangle.GetMinBounds().x <= -1 && direction.x < 0)
                 {
-                    multiplier = 1.0001f;
+                    direction.x *= -1;
                 }
-                if (scale >= 1f)
+            
+                //5. Same as 4 but for y
+                if(triangle.GetMaxBounds().y >= 1 && direction.y > 0  || triangle.GetMinBounds().y <= -1 && direction.y < 0)
                 {
-                    multiplier = .9999f;
+                    direction.y *= -1;
                 }
-                for (var i = 0; i < vertices.Length; i++)
-                {
-                    if (vertices[i].position.x >= 1 && direction.x > 0  || vertices[i].position.x <= -1 && direction.x < 0 )
-                    {
-                        direction.x *= -1;
-                        break;
-                    }
-                }
-                for (var i = 0; i < vertices.Length; i++)
-                {
-                    if (vertices[i].position.y >= 1 && direction.y > 0 || vertices[i].position.y <= -1 && direction.y < 0 )
-                    {
-                        direction.y *= -1;
-                        break;
-                    }
-                }
-                UpdateTriangleBuffer();
             }
         }
+    
         private static void Render(Window window)
         {
-            glDrawArrays(GL_TRIANGLES, 0, vertices.Length);
+            triangle.Render();
             Glfw.SwapBuffers(window);
             //glFlush();
         }
@@ -132,19 +152,12 @@ namespace SharpEngine
             var vertexBuffer = glGenBuffer();
             glBindVertexArray(vertexArray);
             glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-            UpdateTriangleBuffer();
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vertex), NULL);
-            glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(Vertex), (void*)sizeof(Vector));
+            glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), nameof(Vertex.position)));
+            glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), nameof(Vertex.color)));
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
         }
-        static unsafe void UpdateTriangleBuffer()
-        {
-            fixed (Vertex* vertex = &vertices[0])
-            {
-                glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.Length, vertex, GL_DYNAMIC_DRAW);
-            }
-        }
+        
         private static Window CreateWindow()
         {
             Glfw.Init();
