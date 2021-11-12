@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.InteropServices;
 using OpenGL;
 using static OpenGL.Gl;
@@ -16,6 +17,7 @@ namespace SharpEngine
         }
 
         public float CurrentScale { get; private set;}
+        //public float 
         
         public Vector GetMinBounds()
         {
@@ -60,6 +62,27 @@ namespace SharpEngine
                 vertices[i].position += direction;
             }
         }
+
+        public void Rotate(float rotation)
+        {
+            var center = GetCenter();
+            Move(center * -1);
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                var newAngle = MathF.Atan2(vertices[i].position.y, vertices[i].position.x);
+                var magnitutde = MathF.Sqrt(MathF.Pow(vertices[i].position.x, 2) + MathF.Pow(vertices[i].position.y, 2));
+                var rotationx = MathF.Cos(newAngle + GetRadians(rotation)) * magnitutde;
+                var rotationy = MathF.Sin(newAngle + GetRadians(rotation)) * magnitutde;
+                vertices[i].position = new Vector(rotationx, rotationy); 
+            }
+            Move(center);
+        }
+
+        private float GetRadians(float angle)
+        {
+            return angle * (MathF.PI / 180f);
+        }
+
         public Vector MoveDirection(Vector direction)
         {
             //3. Move Triangle by its direction

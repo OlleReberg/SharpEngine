@@ -25,6 +25,9 @@ namespace SharpEngine
                 new (new Vector(-0.5f, -0.5f), Color.Red),
                 new (new Vector(.0f, .5f), Color.Green),
                 new (new Vector(0.5f, -0.5f), Color.Blue)
+                // blue - green: (0.5, 1)
+                // blue - red: (1, 0)
+                // red - green: (0.5, 1) 
             }
         );
 
@@ -37,6 +40,7 @@ namespace SharpEngine
             
             var direction = new Vector(0.0002f, 0.0002f);
             var multiplier = 0.9999f;
+            var rotate = .5f;
             //Engine rendering loop
             while (!Glfw.WindowShouldClose(window))
             {
@@ -47,11 +51,14 @@ namespace SharpEngine
                     Render(window);
                     triangle.Scale(multiplier);
                     triangle2.Scale(multiplier);
+                    triangle.Rotate(rotate);
+                    triangle2.Rotate(rotate);
 
                     multiplier = triangle.CurrentScalar(multiplier);
                     direction = triangle.MoveDirection(direction);
                     multiplier = triangle2.CurrentScalar(multiplier);
                     direction = triangle2.MoveDirection(direction);
+                    
                 }
                 
             }
