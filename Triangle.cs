@@ -6,16 +6,26 @@ using static OpenGL.Gl;
 
 namespace SharpEngine
 {
-    public class Triangle
+
+    public class Triangle : Shape
     {
-        private Vertex[] vertices;
-        public Triangle(Vertex[] vertices)
+        public Triangle(float width, float height, Vector position) : base(new Vertex[3])
+        {
+            vertices[0] = new Vertex(new Vector(position.x - width / 2, position.y - height / 2), Color.Red);
+            vertices[1] = new Vertex(new Vector(position.x + width / 2, position.y - height / 2), Color.Green);
+            vertices[2] = new Vertex(new Vector(position.x, position.y + height / 2), Color.Blue);
+        }
+    }
+    public class Shape
+    {
+        protected Vertex[] vertices;
+        public Shape(Vertex[] vertices)
         {
             this.vertices = vertices;
             CurrentScale = 1f;
             Render(LoadTriangleIntoBuffer());
         }
-
+        
         public float CurrentScale { get; private set;}
         //public float 
         
