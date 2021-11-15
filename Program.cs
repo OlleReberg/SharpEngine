@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -8,94 +9,77 @@ using static OpenGL.Gl;
 
 namespace SharpEngine
 {
-    class Program
-    {
-        private static Shape triangle = new Triangle(.8f, .8f, new Vector(-.4f, 0));
-        private static Shape triangle2 = new Triangle(.4f, .4f, new Vector(.4f, 0));
+       class Program {
+        static float Lerp(float from, float to, float t) {
+            return from + (to - from) * t;
+        }
+
+        static float GetRandomFloat(Random random, float min = 0, float max = 1) {
+            return Lerp(min, max, (float)random.Next() / int.MaxValue);
+        }
         
-
-        private static Shape[] _triangles = {triangle, triangle2};
-        static void Main()
-        {
-            //initialize and configure
-            var window = CreateWindow();
-            CreateShaderProgram();
-            
-            var direction = new Vector(0.0002f, 0.0002f);
-            var multiplier = 0.9999f;
-            var rotate = .5f;
-            //Engine rendering loop
-            while (!Glfw.WindowShouldClose(window))
+        static void FillSceneWithTriangles(Scene scene, Material material) {
+            var random = new Random();
+            for (var i = 0; i < 10; i++) 
             {
-                foreach (var triangle in _triangles)
+                var triangle = new Shape(new Vertex[] 
                 {
-                    Glfw.PollEvents(); //reacts to window changes (position etc.)
-                    ClearScreen();
-                    Render(window);
-                    triangle.Scale(multiplier);
-                    triangle2.Scale(multiplier);
-                    triangle.Rotate(rotate);
-                    triangle2.Rotate(rotate);
-
-                    multiplier = triangle.CurrentScalar(multiplier);
-                    direction = triangle.MoveDirection(direction);
-                    multiplier = triangle2.CurrentScalar(multiplier);
-                    direction = triangle2.MoveDirection(direction);
-                    
-                }
-                
+                    new Vertex(new Vector(-.1f, 0f), Color.Red),
+                    new Vertex(new Vector(.1f, 0f), Color.Green),
+                    new Vertex(new Vector(0f, .133f), Color.Blue)
+                }, material);
+                triangle.Rotate(GetRandomFloat(random));
+                triangle.Move(new Vector(GetRandomFloat(random, -1, 1), GetRandomFloat(random, -1, 1)));
+                scene.Add(triangle);
             }
         }
         
-        private static void Render(Window window)
-        {
-            triangle.Render(triangle.LoadTriangleIntoBuffer());
-            triangle2.Render(triangle2.LoadTriangleIntoBuffer());
-            Glfw.SwapBuffers(window);
-            //glFlush();
-        }
-        private static void ClearScreen()
-        {
-            glClearColor(.1f, .1f, .2f, alpha:1 );
-            glClear(GL_COLOR_BUFFER_BIT);
-        }
-        private static void CreateShaderProgram()
-        {
-            //create vertex shader
-            var vertexShader = glCreateShader(GL_VERTEX_SHADER);
-            glShaderSource(vertexShader, File.ReadAllText("shaders/position-color.vert"));
-            glCompileShader(vertexShader);
+        static void Main(string[] args) {
+            
+            var window = new Window();
+            var material = new Material("shaders/position-color.vert", "shaders/vertex-color.frag");
+            var scene = new Scene();
+            window.Load(scene);
 
-            //create fragment shader
-            var fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-            glShaderSource(fragmentShader, File.ReadAllText("shaders/vertex-color.frag"));
-            glCompileShader(fragmentShader);
+            FillSceneWithTriangles(scene, material);
+            
+            // engine rendering loop
+            var direction = new Vector(0.0003f, 0.0003f);
+            var multiplier = 0.999f;
+            var rotation = 0.0005f;
+            while (window.IsOpen()) {
 
-            //create shader program - rendering pipeline
-            var program = glCreateProgram();
-            glAttachShader(program, vertexShader);
-            glAttachShader(program, fragmentShader);
-            glLinkProgram(program);
-            glUseProgram(program);
-        }
-        
-        
-        private static Window CreateWindow()
-        {
-            Glfw.Init();
-            Glfw.WindowHint(Hint.ClientApi, ClientApi.OpenGL);
-            Glfw.WindowHint(Hint.ContextVersionMajor, 3);
-            Glfw.WindowHint(Hint.ContextVersionMinor, 3);
-            Glfw.WindowHint(Hint.Decorated, true);
-            Glfw.WindowHint(Hint.OpenglProfile, Profile.Core);
-            Glfw.WindowHint(Hint.OpenglForwardCompatible, Constants.True);
-            Glfw.WindowHint(Hint.Doublebuffer, Constants.True);
-
-            //create and launch a window
-            var window = Glfw.CreateWindow(1024, 768, "SharpEngine", Monitor.None, GLFW.Window.None);
-            Glfw.MakeContextCurrent(window);
-            Import(Glfw.GetProcAddress);
-            return window;
+                // Update Triangles
+                for (var i = 0; i < scene.triangles.Count; i++) {
+                    var triangle = scene.triangles[i];
+                
+                    // 2. Keep track of the Scale, so we can reverse it
+                    if (triangle.CurrentScale <= 0.5f) {
+                        multiplier = 1.001f;
+                    }
+                    if (triangle.CurrentScale >= 1f) {
+                        multiplier = 0.999f;
+                    }
+                    
+                    triangle.Scale(multiplier);
+                    triangle.Rotate(rotation);
+                
+                    // 4. Check the X-Bounds of the Screen
+                    if (triangle.GetMaxBounds().x >= 1 && direction.x > 0 || triangle.GetMinBounds().x <= -1 && direction.x < 0) {
+                        direction.x *= -1;
+                    }
+                
+                    // 5. Check the Y-Bounds of the Screen
+                    if (triangle.GetMaxBounds().y >= 1 && direction.y > 0 || triangle.GetMinBounds().y <= -1 && direction.y < 0) {
+                        direction.y *= -1;
+                    }
+                    
+                    
+                    triangle.Move(direction);
+                }
+                
+                window.Render();
+            }
         }
     }
 }
