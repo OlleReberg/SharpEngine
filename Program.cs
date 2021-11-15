@@ -30,7 +30,7 @@ namespace SharpEngine
         static void Main(string[] args) {
             
             var window = new Window();
-            var material = new Material("shaders/position-color.vert", "shaders/vertex-color.frag");
+            var material = new Material("shaders/world-position-color.vert", "shaders/vertex-color.frag");
             var scene = new Scene();
             window.Load(scene);
 
