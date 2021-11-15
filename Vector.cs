@@ -25,9 +25,9 @@ namespace SharpEngine
         {
             return new Vector(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
         }
-        public static Vector operator -(Vector lhs, Vector rhs)
+        public static Vector operator -(Vector v)
         {
-            return new Vector(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
+            return new Vector(-v.x, -v.y, -v.z);
         }
         public static Vector operator /(Vector v, float f)
         {

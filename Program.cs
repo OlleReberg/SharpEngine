@@ -19,19 +19,12 @@ namespace SharpEngine
         }
         
         static void FillSceneWithTriangles(Scene scene, Material material) {
-            var random = new Random();
-            for (var i = 0; i < 10; i++) 
-            {
-                var triangle = new Shape(new Vertex[] 
-                {
-                    new Vertex(new Vector(-.1f, 0f), Color.Red),
-                    new Vertex(new Vector(.1f, 0f), Color.Green),
-                    new Vertex(new Vector(0f, .133f), Color.Blue)
-                }, material);
-                triangle.Rotate(GetRandomFloat(random));
-                triangle.Move(new Vector(GetRandomFloat(random, -1, 1), GetRandomFloat(random, -1, 1)));
-                scene.Add(triangle);
-            }
+            var newTriangle = new Shape(new Vertex[] {
+                new Vertex(new Vector(-.1f, 0f), Color.Red),
+                new Vertex(new Vector(.1f, 0f), Color.Green),
+                new Vertex(new Vector(0f, .133f), Color.Blue)
+            }, material);
+            scene.Add(newTriangle);
         }
         
         static void Main(string[] args) {
