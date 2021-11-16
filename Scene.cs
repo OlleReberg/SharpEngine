@@ -1,21 +1,25 @@
 using System.Collections.Generic;
 
-namespace SharpEngine {
-    public class Scene {
+namespace SharpEngine 
+{
+    public class Scene 
+    {
+        public List<Shape> shapes;
 
-        public List<Shape> triangles;
-
-        public Scene() {
-            triangles = new List<Shape>();
+        public Scene() 
+        {
+            shapes = new List<Shape>();
         }
-		
-        public void Add(Shape triangle) {
-            triangles.Add(triangle);
+        public void Add(Shape shape) 
+        {
+            shapes.Add(shape);
         }
 
-        public void Render() {
-            for (int i = 0; i < triangles.Count; i++) {
-                triangles[i].Render();
+        public void Render() 
+        {
+            for (int i = 0; i < shapes.Count; i++) 
+            {
+                shapes[i].Render();
             }
         }
     }

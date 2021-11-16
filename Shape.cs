@@ -70,5 +70,13 @@ namespace SharpEngine
             glBindVertexArray(0);
             return vertexArray;
         }
+        public void SetColor(Color color)
+        {
+            for (var i = 0; i < vertices.Length; i++)
+            {
+                vertices[i].color = color;
+            }
+        }
+
     }
 }

@@ -63,5 +63,9 @@ namespace SharpEngine {
             //do not divide by zero
             return magnitude > 0 ? this / GetMagnitude(): this;
         }
+        public static float Dot(Vector lhs, Vector rhs)
+        {
+            return lhs.x * rhs.x + lhs.y * rhs.y;
+        }
     }
 }
