@@ -30,6 +30,27 @@ namespace SharpEngine
                                   m.m21 * v.x + m.m22 * v.y + m.m23 * v.z + m.m24 * 1,
                                   m.m31 * v.x + m.m32 * v.y + m.m33 * v.z + m.m34 * 1);
             }
+            public static Matrix operator *(Matrix a, Matrix b) {
+                return new Matrix(	b.m11*a.m11+b.m21*a.m12+b.m31*a.m13+b.m41*a.m14,
+                    b.m12*a.m11+b.m22*a.m12+b.m32*a.m13+b.m42*a.m14,
+                    b.m13*a.m11+b.m23*a.m12+b.m33*a.m13+b.m43*a.m14,
+                    b.m14*a.m11+b.m24*a.m12+b.m34*a.m13+b.m44*a.m14,
+
+                    b.m11*a.m21+b.m21*a.m22+b.m31*a.m23+b.m41*a.m24,
+                    b.m12*a.m21+b.m22*a.m22+b.m32*a.m23+b.m42*a.m24,
+                    b.m13*a.m21+b.m23*a.m22+b.m33*a.m23+b.m43*a.m24,
+                    b.m14*a.m21+b.m24*a.m22+b.m34*a.m23+b.m44*a.m24,
+
+                    b.m11*a.m31+b.m21*a.m32+b.m31*a.m33+b.m41*a.m34,
+                    b.m12*a.m31+b.m22*a.m32+b.m32*a.m33+b.m42*a.m34,
+                    b.m13*a.m31+b.m23*a.m32+b.m33*a.m33+b.m43*a.m34,
+                    b.m14*a.m31+b.m24*a.m32+b.m34*a.m33+b.m44*a.m34,
+
+                    b.m11*a.m41+b.m21*a.m42+b.m31*a.m43+b.m41*a.m44,
+                    b.m12*a.m41+b.m22*a.m42+b.m32*a.m43+b.m42*a.m44,
+                    b.m13*a.m41+b.m23*a.m42+b.m33*a.m43+b.m43*a.m44,
+                    b.m14*a.m41+b.m24*a.m42+b.m34*a.m43+b.m44*a.m44);
+            }
             
             public static Matrix Translation(Vector translation)
             {
