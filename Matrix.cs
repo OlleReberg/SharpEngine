@@ -26,11 +26,17 @@ namespace SharpEngine
                                                  0, 0, 1, 0,
                                                  0, 0, 0, 1);
 
+            public static Vector Transform(Matrix m, Vector v, float w = 1f) 
+            {
+                return new Vector(m.m11 * v.x + m.m12 * v.y + m.m13 * v.z + m.m14 * w,
+                    m.m21 * v.x + m.m22 * v.y + m.m23 * v.z + m.m24 * w,
+                    m.m31 * v.x + m.m32 * v.y + m.m33 * v.z + m.m34 * w);
+            }
             public static Vector operator *(Matrix m, Vector v)
             {
                 return new Vector(m.m11 * v.x + m.m12 * v.y + m.m13 * v.z + m.m14 * 1,
-                                  m.m21 * v.x + m.m22 * v.y + m.m23 * v.z + m.m24 * 1,
-                                  m.m31 * v.x + m.m32 * v.y + m.m33 * v.z + m.m34 * 1);
+                    m.m21 * v.x + m.m22 * v.y + m.m23 * v.z + m.m24 * 1,
+                    m.m31 * v.x + m.m32 * v.y + m.m33 * v.z + m.m34 * 1);
             }
             public static Matrix operator *(Matrix a, Matrix b) {
                 return new Matrix(	b.m11*a.m11+b.m21*a.m12+b.m31*a.m13+b.m41*a.m14,
