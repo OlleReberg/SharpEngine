@@ -110,7 +110,7 @@ namespace SharpEngine
                         circle.SetColor(Color.Black);
                     }
                     //Can't figure out
-                    else
+                    else if (MathF.Acos(Vector.Dot(triangle.Transform.Backward, circle.Transform.Position)) > 0)
                     {
                         circle.SetColor(Color.White);
                     }
