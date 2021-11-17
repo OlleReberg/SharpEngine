@@ -26,7 +26,8 @@ namespace SharpEngine
         public Vector GetMinBounds()
         {
             var min = Transform.Matrix * vertices[0].position;
-            for (var i = 1; i < vertices.Length; i++) {
+            for (var i = 1; i < vertices.Length; i++) 
+            {
                 min = Vector.Min(min, Transform.Matrix * vertices[i].position);
             }
             return min;

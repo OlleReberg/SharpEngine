@@ -1,7 +1,9 @@
 using System;
 
-namespace SharpEngine {
-    public struct Vector {
+namespace SharpEngine 
+{
+    public struct Vector 
+    {
         public float x, y, z;
 
         public static Vector Forward => new Vector(0, 1);

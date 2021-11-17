@@ -18,27 +18,29 @@ namespace SharpEngine
                 this.m21 = m21; this.m22 = m22; this.m23 = m23; this.m24 = m24;
                 this.m31 = m31; this.m32 = m32; this.m33 = m33; this.m34 = m34;
                 this.m41 = m41; this.m42 = m42; this.m43 = m43; this.m44 = m44;
-                
             }
 
             public static Matrix Identity => new (1, 0, 0, 0,
                                                  0, 1, 0, 0,
                                                  0, 0, 1, 0,
-                                                 0, 0, 0, 1);
-
+                                                 0, 0, 0, 1
+            );
             public static Vector Transform(Matrix m, Vector v, float w = 1f) 
             {
                 return new Vector(m.m11 * v.x + m.m12 * v.y + m.m13 * v.z + m.m14 * w,
                     m.m21 * v.x + m.m22 * v.y + m.m23 * v.z + m.m24 * w,
-                    m.m31 * v.x + m.m32 * v.y + m.m33 * v.z + m.m34 * w);
+                    m.m31 * v.x + m.m32 * v.y + m.m33 * v.z + m.m34 * w
+                );
             }
             public static Vector operator *(Matrix m, Vector v)
             {
                 return new Vector(m.m11 * v.x + m.m12 * v.y + m.m13 * v.z + m.m14 * 1,
                     m.m21 * v.x + m.m22 * v.y + m.m23 * v.z + m.m24 * 1,
-                    m.m31 * v.x + m.m32 * v.y + m.m33 * v.z + m.m34 * 1);
+                    m.m31 * v.x + m.m32 * v.y + m.m33 * v.z + m.m34 * 1
+                );
             }
-            public static Matrix operator *(Matrix a, Matrix b) {
+            public static Matrix operator *(Matrix a, Matrix b)
+            {
                 return new Matrix(	b.m11*a.m11+b.m21*a.m12+b.m31*a.m13+b.m41*a.m14,
                     b.m12*a.m11+b.m22*a.m12+b.m32*a.m13+b.m42*a.m14,
                     b.m13*a.m11+b.m23*a.m12+b.m33*a.m13+b.m43*a.m14,
@@ -57,7 +59,8 @@ namespace SharpEngine
                     b.m11*a.m41+b.m21*a.m42+b.m31*a.m43+b.m41*a.m44,
                     b.m12*a.m41+b.m22*a.m42+b.m32*a.m43+b.m42*a.m44,
                     b.m13*a.m41+b.m23*a.m42+b.m33*a.m43+b.m43*a.m44,
-                    b.m14*a.m41+b.m24*a.m42+b.m34*a.m43+b.m44*a.m44);
+                    b.m14*a.m41+b.m24*a.m42+b.m34*a.m43+b.m44*a.m44
+                );
             }
             
             public static Matrix Translation(Vector translation)
@@ -111,7 +114,6 @@ namespace SharpEngine
                 return RotationZ(rotation.z) * RotationY(rotation.y) * RotationX(rotation.x);
             }
         }
-   
 }
 
  

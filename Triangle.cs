@@ -1,8 +1,11 @@
 using System;
 
-namespace SharpEngine {
-    public class Triangle : Shape {
-        public Triangle(Material material) : base(CreateTriangle(), material) {
+namespace SharpEngine 
+{
+    public class Triangle : Shape 
+    {
+        public Triangle(Material material) : base(CreateTriangle(), material) 
+        {
         }
 
         static Vertex[] CreateTriangle() 

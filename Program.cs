@@ -93,12 +93,14 @@ namespace SharpEngine
 
                     walkDirection = walkDirection.Normalize();
                     triangle.Transform.Position += walkDirection * movementSpeed * fixedDeltaTime;
+                    float facing = Vector.Dot((rectangle.GetCenter() - triangle.GetCenter()).Normalize(), triangle.Transform.Forward);
+                    bool istriangleFacing = facing > 0;
 
-                    if (Vector.Dot(triangle.Transform.Forward, rectangle.Transform.Forward) < 0)
+                    if (istriangleFacing)
                     {
                         rectangle.SetColor(Color.Red);
                     }
-                    else if (Vector.Dot(triangle.Transform.Forward, rectangle.Transform.Forward) > 0)
+                    else
                     {
                         rectangle.SetColor(Color.Blue);
                     }
