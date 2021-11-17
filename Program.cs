@@ -94,25 +94,19 @@ namespace SharpEngine
                     walkDirection = walkDirection.Normalize();
                     triangle.Transform.Position += walkDirection * movementSpeed * fixedDeltaTime;
                     float facing = Vector.Dot((rectangle.GetCenter() - triangle.GetCenter()).Normalize(), triangle.Transform.Forward);
-                    bool istriangleFacing = facing > 0;
+                    float dotProduct = Vector.Dot((circle.GetCenter() - triangle.GetCenter()).Normalize(), triangle.Transform.Forward);
+                    float angle = MathF.Acos(dotProduct);
+                    float factor = angle / MathF.PI;
+                    circle.SetColor(new Color(factor, factor, factor, 1));
+                    bool isTriangleFacing = facing > 0;
 
-                    if (istriangleFacing)
+                    if (isTriangleFacing)
                     {
                         rectangle.SetColor(Color.Red);
                     }
                     else
                     {
                         rectangle.SetColor(Color.Blue);
-                    }
-
-                    if (MathF.Acos(Vector.Dot(triangle.Transform.Forward, circle.Transform.Forward)) > 0)
-                    {
-                        circle.SetColor(Color.Black);
-                    }
-                    //Can't figure out
-                    else if (MathF.Acos(Vector.Dot(triangle.Transform.Backward, circle.Transform.Position)) > 0)
-                    {
-                        circle.SetColor(Color.White);
                     }
                 }
                 window.Render();
