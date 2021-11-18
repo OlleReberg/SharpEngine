@@ -38,22 +38,31 @@ namespace SharpEngine
 					Circle other = scene.shapes[j] as Circle;
 					// check for collision
 					Vector deltaPosition = other.GetCenter() - shape.GetCenter();
-					bool collision = deltaPosition.GetSquareMagnitude() <= (shape.Radius + other.Radius) * (shape.Radius + other.Radius);
+					float squareOverlap = (shape.Radius + other.Radius) * (shape.Radius + other.Radius) - deltaPosition.GetSquareMagnitude();
 
-					if (collision) 
+					if (squareOverlap > 0)
 					{
+						float overlap = MathF.Sqrt(squareOverlap);
 						Vector collisionNormal = deltaPosition.Normalize();
+						float totalMass = other.Mass + shape.Mass;
+						
+						//called Interprenetation resolvement
+						other.Transform.Position += overlap * shape.Mass / totalMass * collisionNormal;
+						shape.Transform.Position -= overlap * other.Mass / totalMass * collisionNormal;
+						
+						// calculate the part of the shape's velocity that is parallel to the collision normal
 						Vector shapeVelocity = Vector.Dot(shape.velocity, collisionNormal) * collisionNormal;
+						// calculate the part of the other shape's velocity that is parallel to the collision normal
 						Vector otherVelocity = Vector.Dot(other.velocity, collisionNormal) * collisionNormal;
 						
-						float totalMass = other.Mass + shape.Mass;
 
 						Vector velocityChange = 2 * other.Mass/totalMass * (otherVelocity - shapeVelocity);
 						Vector otherVelocityChange = -shape.Mass / other.Mass * velocityChange;
 
 						
 
-						AssertPhysicalCorrectness(shape.Mass, shape.velocity, other.Mass, other.velocity, shape.Mass, shape.velocity + velocityChange, other.Mass, other.velocity + otherVelocityChange);
+						AssertPhysicalCorrectness(shape.Mass, shape.velocity, other.Mass, other.velocity, shape.Mass,
+							shape.velocity + velocityChange, other.Mass, other.velocity + otherVelocityChange);
 
 						shape.velocity += velocityChange;
 						other.velocity += otherVelocityChange;
@@ -61,7 +70,6 @@ namespace SharpEngine
 				}
 			}
 		}
-
 		static Vector CalculateTotalMomentum(float m1, Vector v1, float m2, Vector v2) 
 		{
 			return CalculateMomentum(m1, v1) + CalculateMomentum(m2, v2);

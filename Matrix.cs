@@ -1,5 +1,6 @@
 
 using System;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace SharpEngine
 {
@@ -41,7 +42,8 @@ namespace SharpEngine
             }
             public static Matrix operator *(Matrix a, Matrix b)
             {
-                return new Matrix(	b.m11*a.m11+b.m21*a.m12+b.m31*a.m13+b.m41*a.m14,
+                // could do this here: result[x, y] = DoubleType(a.GetRow(y), b.GetColumn(x));
+                return new Matrix( b.m11*a.m11+b.m21*a.m12+b.m31*a.m13+b.m41*a.m14,
                     b.m12*a.m11+b.m22*a.m12+b.m32*a.m13+b.m42*a.m14,
                     b.m13*a.m11+b.m23*a.m12+b.m33*a.m13+b.m43*a.m14,
                     b.m14*a.m11+b.m24*a.m12+b.m34*a.m13+b.m44*a.m14,
